@@ -1,0 +1,325 @@
+//File system in linux 
+
+
+how to check your file system : lsblk -f
+
+file system structure :
+
+/boot: files used by boot loader(grub)
+/dev: system devices files (speaker,keyboard)
+/etc:configuration files 
+/usr/bin:Binaries
+/opt:installation of add-on applications
+/proc:running processes
+/usr/lib: C program library files used by commands and apps
+/tmp: temporary files
+/home:directories of users
+/root:home directory of root user
+/var: system logs
+/run:system daemons that start very early
+/mnt:to mount external filesystem
+/media: for CDROM Mounts
+
+------FIND AND LOCATE----------------
+
+find [starting_directory] [options] [expression]
+eg: find /home/user -name "*.txt"
+
+locate [options] pattern
+eg:locate *.txt
+sudo updatedb
+
+
+diff: if u write incomplete name of your file you'll not get any result using find command 
+-------GREP------------
+
+grep [options] pattern [file(s)]  
+eg: grep "pattern" filename.txt
+//grep is case sensitive. To ignore this use grep -i
+grep -e "word1" -e "word2" filename //to use multiple words in a file
+-n: This option prints the line numbers along with the lines that match the specified pattern.
+-c: This option counts the number of lines that match the pattern instead of printing the lines themselves.
+
+------FIND----------
+find [starting_directory] [options] [expression]
+eg: find . -type f //we are specifying we r searching for a file.
+eg:find /path/to/directory -type d -name "example" //Find directories with a specific name
+
+---------PIPING------------
+Count files in a folder: ls -1 | wc -l . -1 for line by line names ,wc -l to count no of lines .
+
+Combine both files content using cat and sort: cat file1 file2 | sort
+
+Find Unique records from a file : cat filename | sort | uniq
+
+See only 30-37th line from a file : cat filename | head -38 | tail -1
+
+------------TEE-------------------
+
+ls | tee test.txt  //The tee command in Linux is used to read from standard input and write to both standard output and one or more files simultaneously.
+it is useful cuz it shows and saves the output in a file   
+
+--------WILDCARDS------------
+
+To list all xml files : ls -l *.xml
+To make 20 files with name file1-20: touch file{1..20}
+To search for files that starts with any digit but ends with 123: ls -l ?123
+To search words that starts with R using Grep: cat filename | grep ^R
+To search words that ends with am using Grep: cat filename | grep am$
+
+-----------GZIP---------------- MAJOR ISSUE : doesn't zip directories----
+gzip filename (To compress files)
+gunzip filename (To decompress files)
+Note: if u compress a file using gzip command then u cannot extract it using tar.it can be only done through gunzip
+
+-------------TAR-----------
+tar cvf name.tar file_path
+tar xvf name.tar file_path
+tar -tf archive_file.tar.gz (show content in zip file)
+tar -zcvf name.tar.gz file_path 
+
+----------CHMOD-----------------
+
+Type of Permissions: r-read , w-write , x-execute
+Permission levels: u-yourself(current user),g-group,o-others,a-all
+drwxr-xr-x  onwer(rwx),group(rx),o(rx)
+Change permissions: symbolic mode-> chmod u[user]=rwx[read,write,execute] ; chmod go=rwx ;
+Binary mode -> read=4,write=2,execute=1 chmod 777 [filename]
+
+
+---------ACCESS CONTROL LIST------------------------
+To give permission to specific user 
+getfacl filename (gives permission details)
+
+setfacl -m u:user:rwx filename   To add permission for user
+setfacl -m g:group:rwx filename  To add permission for group
+setfacl -x u:user:rwx filename   To remove a specific entry
+setfacl -b filename              To remove all entries
+
+
+----------HARD LINKS AND SOFT LINKS--------------
+Points to the location of the file 
+SOFT LINK: link will be removed if original file is deleted
+ln -s path (softlink name)
+
+HARD LINK: renaming , Deleting or removing the file will not effect the link
+ln filepath
+
+----------ENVIRONMENT VARIABLES-----------------
+
+To View env variables : printenv (For all env variables)
+echo $HOME : To check value of a particular env variable(This case it's host)
+
+To set environment variable temporary use export command
+export TESTVAR=1
+
+To set environment variable permanent (applicable for a specific user)
+nano .bashrc
+export TESTVAR=abc
+source .bashrc
+
+To set environment variable permanent (applicable for all users)
+
+nano etc/profile
+export TESTVAR=abc
+source .bashrc
+
+To unset environment variable
+
+unset $VARNAME
+
+---------PROCESS-----------
+ps
+
+ps -e [tell us all the running process]
+ps -ef [full format]
+ps aux
+eg To check apache server is running or not : pd -ef | grep httpd
+ps -u [username]  see process by user
+ps -G [groupname] see process by group
+
+----------KILL-----------------
+kill [options] [PID] //To see options, type kill -l
+kill -1 PID (To rstart process)
+kill -2 PID  (interrupt from keyboard like ctrl+c)
+kill -9 PID  (Forcefully terminate the process)
+kill -15 PID  (Kill the process gracefully)
+
+ 
+---------PROCESS MANAGEMENT----------------------
+
+jobs: will show active jobs
+bg: resume jobs to the background
+fg: resume jobs to the foreground
+bg %<jobid> resume a specific job in background
+To check nice value: ps -l PID  -20(high priority)- 19(low priority)
+To change nice value: nice -n -10 file
+
+-------NOHUP----------------
+nohup script &
+nohup process>/dev/null 2>&1 &
+
+-------SYSTEM MONITORING-----------
+df:shows info about file system:  df -h
+du:summarize disk usage:    du -h filepath
+free: display amount of free memory : free -h
+
+-----------DMESG----------------
+dmesg 
+dmesg -HTx (human readable,timestamp,decode)
+
+
+-----------SUID-------------
+chmod u+s filename
+ 
+-------STICKY BIT------------
+only file owner, dir owner can delete or rename a file or directory
+chmod o+t folder/file 
+
+--------CHOWN---CHGRP----------
+To change owner and group
+chown -c (username) (filename)
+chgrp -c --same--
+
+--------CRON JOB--------------
+In Linux, a cron job is a scheduled task that runs automatically at specified intervals. Cron is a time-based job scheduler in Unix-like operating systems.
+To view your current cron jobs, use:crontab -l
+To remove all your cron jobs, use:crontab -r
+To edit the crontab file, open a terminal and type:crontab -e
+eg:0 2 * * * /path/to/script.sh >> /path/to/logfile 2>&1
+
+----------SSH----------------
+port no. 22
+systemctl status sshd
+ssh username@hostname -p 22
+To transfer files between two users on the same machine using SSH, you can use the scp (secure copy) command:
+scp username2@hostname2:/path/to/source/file username1@hostname1:/path/to/destination/directory
+Generate SSH key pair:ssh-keygen -t rsa -b 2048
+Copy SSH public key to remote server:ssh-copy-id username@hostname
+Restart SSH service:service ssh restart
+View active SSH connections:who
+
+
+
+
+----SETUP Linux Apache Web Server HTTPD---------------------
+
+yum install httpd
+config location: /etc/httpd/conf/httpd.conf
+/var/www/html/index.html
+logs: log var/log/httpd
+systemctl start httpd (To start the server)
+ip addr (copy the ip and place it in browser)
+systemctl status firewalld.service (To check status of firewall)
+systemctl stop firewalld.service (To stop service of firewall)
+
+
+-------LINUX QUESTIONS---------------------------
+1.use of echo command : used for string output
+2.How to check the hostname : hostname command
+3.How to check the current user : whoami
+4.How to check your current path : pwd
+5.Diff bw relative and absolute path : relative path(start from current working dir) and absolute path(full path to a file)
+6.Which commnd is used to create a file : touch , vi , nano
+7.How will you edit and existing file in linux : nano , vi , vim
+8.Rename a file in linux : mv command 
+9.Search for a string in a file : grep commnd
+10.Difference between grep and egrep : In egrep u can search for more than 1 string at same time egrep "key1|key2|key3"
+11.Read a file without cat commnd: less,more,nano,head,tail
+12.Advantage of using less commnd:easily read big files,forward and backward search is easy
+13.Check file permission : ls -l, getfacl filename
+14.Check ip of linux server: ifconfig, ip addr
+15.Read top 5 lines of a file : head -5 filename
+16.Read last 5 lines if a file : tail -5 filename
+17.How to list hidden files : ls -la
+18.How to see recent used command : History
+19.What is root: Admin or super user
+20.What is inode and how to find it for a file : ls -li inode is an index node , serves as a unique identifier for a specific piece of metadata on a given filesystem
+21.Which command is used for finding files on linux system: find and locate command
+22.Command for counting words and lines : wc , wc -l
+23.How can u combine two files : command1 | command2
+24.See the diff between two files : diff file1 file2
+25.What is the use of shred command: permanently delete a file  shred -u filename or shred --remove filename
+26.How to check system architecture info: dmidecode , lscpu
+27.How to combine two files: cat file1 file2
+28.How can u find the type of file: file filename
+29.How to sort content of a file: sort filename
+30.Diff ways to access linux server remotely from windows machine: putty, git bash ,cmd
+31.What are the diff types of permissions for a file : rwx(read write execute)
+32.How to check permissions given to a file : ls -l
+33.Which permission allow user to run an executable file : x
+34.How to write output of a command into a file: command > filename
+35.How to write something in a file without deleting the existing content : (any text) >> file.txt
+36.How to redirect an error of a command into a file: 2> for error and 2>&1 for both error and output
+37.How to automate any task or script: using cron jobs. crontab
+38.How to check scheduled jobs: crontab -l
+39.Meaning of this cron job *****  : minute hour day month year
+40.If your cron job didn't work how can you check ? check system time -> crontab entry -> check /var/logs/messages
+41.What is a daemon service : service running in background eg httpd,sshd
+42.How to check if a service is running or not : systemctl status httpd
+43.How to start/stop any service: systemctl start/stop servicename
+44.How to check for free disk space : df -h
+45.How to check size of a directory content : du -h dirpath
+46.How to check CPU usage for a process : top command
+47.What is a process : An instance of a running program , for every process a unique no. is assigned known as PID
+48.How to check if a process is running or not : ps -ef
+49.How to terminate or stop a running process: kill command
+50.Diff between kill and kill -9 : kill -9 will terminate forcefully
+51.How to check if a Ip/server is accessible or not: ping ,telnet
+52.How to check port info: netstat command
+53.How to check open port only : netstat putan | grep :port_no.
+54.How to check network interfaces in linux: ifconfig , netstat
+55.Diff between telnet and ssh : ssh is more secure
+56.Which service should be running on server to allow you to connect remotely: ssh or sshd
+57.What is ssh : ssh is network communication protocol that enables two devices to communicate and share data
+58.Why it is called secure shell : It is encrypted
+59.Default port for ssh: port no 22
+60.Which command is used to access a linux system from a terminal : ssh username@ip
+
+---------------------------------------------------------------------
+
+1.RHEL stands for : Red hat enterprise linux operating system
+2.Eg of linux distro: debian, centos fedora,ubuntu
+3.What is kernel : Core interface bw computer hardware and its processes
+4.What is swap space: used when RAM is full.when ram is full inactive pages in memory are moved to the swap space
+5.Search a word and replace it in entire file : sed command sed's/<change string>/<new string>/g' filename
+6.What is use of SCP command: scp command copies files bw a local and remote system 
+7.Use of FTP command: Exchange files to and from a remote computer 
+8.What is alias , how to setup : alias d='command'
+9.Diff bw upgrade and update: update to latest version and upgrade performs same action but can't downgrade
+10.Ports for DNS SMTP FTP SSH DHCP squid Http Https : 53 25 21 22 67,68 3128 80 443
+11.How to check is a package is install or not: rpm -qa | grep pckg name
+12.Command to send packets : ping 
+13.Which file contains list of group names and GIDs: /etc/group/
+14.which of the following contains the value of the exit status of the previously executed command: $?
+15.Command that displays no and type of processor used by linux: lscpu ; cat/proc/cpuinfo
+16.Command to get list of connected usb devices : lsusb
+17. Default arg for cd command when no dir is provided : HOME
+18.Command following ; will be executed no matter the exit status of command preceded the semicolon (TRUE)
+19.What are the valid values of exit staus : 0-255 , successfull when exit status is 0
+20.According to file system , dir for log files : /var/log/
+21.What port must be open to ping a host : ping don't use port
+22.How will you transfer files from linux to windows os : ssh ,ftp, winSCP
+23.Can u split a file in two : yes split -l 3(yha se aplit ho jaayegi) filename
+24.How u can get unique values from list : sort filename | uniq
+25.Using vi how to edit and save : vi i(insert) ESC(come out of insert mode) wq(To save)
+26.Diff bw find and locate : u need to update locate db
+27.What is TEE command used for : we can see and store output of command by single command
+28.What is xargs used for : To convert stdinput into command line input
+29.Find no of files and folders in a dir : ls -1 | wc -l
+30.Read only line 26 to 30 : head -30 filename | tail -5
+31.Use of Tar command : compress and decompress tar.gz files
+32.How to redirect both standard output and error to a file : command > file 2>&1
+33.Some commands for DNS resolution :
+ping  nslookup,dig and host
+34.Use of At command : Used to schedule a task once
+35.Service used by At command : Atd
+36.Comand to assign read only permission to everyone and write permission to owner of the file : chmod u+w , chmod a+r
+37.Which cmd changes group ownership of "/var/www" dir to "nginix" group: chgrp ngnix /var/www
+38.What is chmod 777 filename : provide all permissions to usr grp others
+39.What is ACL : Access control list . use setfacl and getfacl
+40:Links in linux : Soft link and hard link. used to create shortcuts
+41.Command for soft;Hard links : ln -s ; ln
+42.What command you can see env variables : env or printenv
+43.Ways to set env variables : Local (temp ; permanent) ; Global
+44.How to set env variables : using export command
